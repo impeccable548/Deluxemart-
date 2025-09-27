@@ -8,7 +8,13 @@ export default function App() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // Login validation
+  const [balance, setBalance] = useState(1250); // live balance
+  const [history, setHistory] = useState([
+    { text: "Paid Bills - $50", amount: 50 },
+    { text: "Grocery - $120", amount: 120 },
+    { text: "Mobile Recharge - $20", amount: 20 },
+  ]);
+
   const handleLogin = () => {
     if (password.length === 8) {
       setStage("dashboard");
@@ -17,7 +23,6 @@ export default function App() {
     }
   };
 
-  // Reusable back button
   const BackButton = ({ to }) => (
     <button
       onClick={() => setStage(to)}
@@ -26,6 +31,18 @@ export default function App() {
       Back
     </button>
   );
+
+  // Deduct from balance + log transaction
+  const handleTransaction = (amount, label) => {
+    if (amount > 0 && amount <= balance) {
+      setBalance(balance - amount);
+      setHistory([{ text: `${label} - $${amount}`, amount }, ...history]);
+      alert("✅ Transaction successful!");
+      setStage("balance");
+    } else {
+      alert("❌ Invalid amount or insufficient balance!");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 to-black text-white flex items-center justify-center">
@@ -127,7 +144,7 @@ export default function App() {
         </motion.div>
       )}
 
-      {/* MARKETPLACE SUB-PAGES */}
+      {/* MARKET SUBPAGES */}
       {stage === "accessories" && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -172,13 +189,13 @@ export default function App() {
           className="p-6 w-96 bg-purple-800 rounded-2xl shadow-lg"
         >
           <h2 className="text-xl font-bold mb-4 text-center">Your Balance</h2>
-          <p className="text-lg mb-3">💰 $1,250.00</p>
+          <p className="text-lg mb-3">💰 ${balance.toFixed(2)}</p>
 
           <h3 className="font-semibold mb-2">Payment History</h3>
           <ul className="text-sm mb-4">
-            <li>✔ Paid Bills - $50</li>
-            <li>✔ Grocery - $120</li>
-            <li>✔ Mobile Recharge - $20</li>
+            {history.map((item, i) => (
+              <li key={i}>✔ {item.text}</li>
+            ))}
           </ul>
 
           <h3 className="font-semibold mb-2">Features</h3>
@@ -213,7 +230,7 @@ export default function App() {
         </motion.div>
       )}
 
-      {/* BALANCE SUB-PAGES */}
+      {/* BALANCE FEATURES WITH FORMS */}
       {stage === "payment" && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -222,16 +239,20 @@ export default function App() {
         >
           <h2 className="text-xl font-bold mb-4">Online Payment</h2>
           <input
-            type="text"
-            placeholder="Recipient"
-            className="w-full p-2 rounded bg-purple-700 mb-3 outline-none"
-          />
-          <input
+            id="pay-amount"
             type="number"
             placeholder="Amount"
             className="w-full p-2 rounded bg-purple-700 mb-3 outline-none"
           />
-          <button className="w-full bg-purple-500 hover:bg-purple-600 py-2 rounded">
+          <button
+            onClick={() =>
+              handleTransaction(
+                parseFloat(document.getElementById("pay-amount").value),
+                "Online Payment"
+              )
+            }
+            className="w-full bg-purple-500 hover:bg-purple-600 py-2 rounded"
+          >
             Pay Now
           </button>
           <BackButton to="balance" />
@@ -246,16 +267,20 @@ export default function App() {
         >
           <h2 className="text-xl font-bold mb-4">Bills Payment</h2>
           <input
-            type="text"
-            placeholder="Bill Type"
-            className="w-full p-2 rounded bg-purple-700 mb-3 outline-none"
-          />
-          <input
+            id="bill-amount"
             type="number"
             placeholder="Amount"
             className="w-full p-2 rounded bg-purple-700 mb-3 outline-none"
           />
-          <button className="w-full bg-purple-500 hover:bg-purple-600 py-2 rounded">
+          <button
+            onClick={() =>
+              handleTransaction(
+                parseFloat(document.getElementById("bill-amount").value),
+                "Bills"
+              )
+            }
+            className="w-full bg-purple-500 hover:bg-purple-600 py-2 rounded"
+          >
             Pay Bill
           </button>
           <BackButton to="balance" />
@@ -270,16 +295,20 @@ export default function App() {
         >
           <h2 className="text-xl font-bold mb-4">Card Payment</h2>
           <input
-            type="text"
-            placeholder="Card Number"
+            id="card-amount"
+            type="number"
+            placeholder="Amount"
             className="w-full p-2 rounded bg-purple-700 mb-3 outline-none"
           />
-          <input
-            type="text"
-            placeholder="Expiry Date"
-            className="w-full p-2 rounded bg-purple-700 mb-3 outline-none"
-          />
-          <button className="w-full bg-purple-500 hover:bg-purple-600 py-2 rounded">
+          <button
+            onClick={() =>
+              handleTransaction(
+                parseFloat(document.getElementById("card-amount").value),
+                "Card Payment"
+              )
+            }
+            className="w-full bg-purple-500 hover:bg-purple-600 py-2 rounded"
+          >
             Process Card
           </button>
           <BackButton to="balance" />
@@ -294,16 +323,20 @@ export default function App() {
         >
           <h2 className="text-xl font-bold mb-4">Electrical Payment</h2>
           <input
-            type="text"
-            placeholder="Meter Number"
-            className="w-full p-2 rounded bg-purple-700 mb-3 outline-none"
-          />
-          <input
+            id="elec-amount"
             type="number"
-            placeholder="Units"
+            placeholder="Units ($)"
             className="w-full p-2 rounded bg-purple-700 mb-3 outline-none"
           />
-          <button className="w-full bg-purple-500 hover:bg-purple-600 py-2 rounded">
+          <button
+            onClick={() =>
+              handleTransaction(
+                parseFloat(document.getElementById("elec-amount").value),
+                "Electrical Payment"
+              )
+            }
+            className="w-full bg-purple-500 hover:bg-purple-600 py-2 rounded"
+          >
             Recharge
           </button>
           <BackButton to="balance" />
